@@ -1,7 +1,6 @@
-# version: "3.9" # obsoleted for docker compose version 2
 
 services:
-  db_app:
+  db-service:
     build:
        context: .
        dockerfile: Dockerfile.postgres
@@ -9,75 +8,78 @@ services:
           DB_USER: ${DB_USER}
           DB_NAME: ${DB_NAME}
           DB_HOST: ${DB_HOST}
-          DB_EXTERNAL_PORT: ${DB_EXTERNAL_PORT}
-          DB_CONTAINER_VOLUME: ${DB_CONTAINER_VOLUME}
+          DB_PORT: ${DB_PORT}
+          DB_VOLUME: ${DB_VOLUME}
           USER_GROUP: ${USER_GROUP}
-    container_name: db_app
+    container_name: db-service
     restart: unless-stopped
     shm_size: 128mb
     ports:
-     - "${DB_EXTERNAL_PORT}:5432"
+     - "${DB_PORT}:5432"
     volumes:
-      - "${DB_CONTAINER_VOLUME}/data:/var/lib/postgresql/data:rw"
-      - "${DB_CONTAINER_VOLUME}/conf:/etc/postgresql/conf.d:ro"
-      - "${DB_CONTAINER_VOLUME}/scripts:/docker-entrypoint-initdb.d:ro"
-      - "${DB_CONTAINER_VOLUME}/assets:/assets:ro"
+      - "${DB_VOLUME}/data:/var/lib/postgresql/data:rw"
+      - "${DB_VOLUME}/conf:/etc/postgresql/conf.d:ro"
+      - "${DB_VOLUME}/scripts:/docker-entrypoint-initdb.d:ro"
+      - "${DB_VOLUME}/assets:/assets:ro"
     environment:
       - POSTGRES_PASSWORD_FILE=/run/secrets/postgres-passwd
       - DB_PASSWORD=/run/secrets/db_password
       - DB_USER=${DB_USER}
       - DB_NAME=${DB_NAME}
       - DB_HOST=${DB_HOST}
-      - DB_EXTERNAL_PORT=${DB_EXTERNAL_PORT}
+      - DB_PORT=${DB_PORT}
       - SERVICE_TAGS=v1.0.0
-      - SERVICE_NAME=db_app_postgres
+      - SERVICE_NAME=db-service
     secrets:
       - postgres-passwd
       - db_password
     networks:
       draft_network:
         aliases:
-          - db_app
+          - db-service
   adminer:
     image: adminer
     container_name: adminer
     restart: unless-stopped
     ports:
-      - "${ADMINER_EXTERNAL_PORT}:8080"
+      - "${ADMINER_PORT}:8080"
     environment:
-      - ADMINER_DEFAULT_SERVER=db_app
+      - ADMINER_DEFAULT_SERVER=db-service
     networks:
       draft_network:
         aliases:
           - adminer
-  # web_app:
-  #   build:
-  #     context: .
-  #     dockerfile: Dockerfile.apache-bullseye
-  #   container_name: web_app
-  #   restart: unless-stopped
-  #   ports:
-  #     - "${WEB_EXTERNAL_PORT}:80"
-  #   volumes:
-  #     - "${WEB_CONTAINER_VOLUME}:/var/www/html:rw"
-  #   environment:
-  #     environment:
-  #     DB_USER: /run/secrets/db_user
-  #     DB_PASSWORD: /run/secrets/db_password
-  #     DB_NAME: "${DB_NAME}"
-  #     DB_HOST: "${DB_HOST}"
-  #     WEB_EXTERNAL_PORT: "${WEB_EXTERNAL_PORT}"
-  #     SERVICE_TAGS: "v1.0.0"
-  #     SERVICE_NAME: web_app
-  #   secrets:
-  #     - db_user
-  #     - db_password
-  #   depends_on:
-  #     - db_app
-  #   networks:
-  #     draft_network:
-  #       aliases:
-  #         - web_app
+  nest-service:
+    build:
+      context: .
+      dockerfile: Dockerfile.node
+      args:
+        NODE_PORT: ${NODE_PORT}
+        DB_USER: ${DB_USER}
+        DB_NAME: ${DB_NAME}
+        DB_HOST: ${DB_HOST}
+    container_name: nest-service
+    restart: unless-stopped
+    ports:
+      - "${NODE_PORT}:3000"
+    volumes:
+      - "${NODE_VOLUME}:/home/nodeuser/app:rw"
+    environment:
+      DB_USER: /run/secrets/db_user
+      DB_PASSWORD: /run/secrets/db_password
+      DB_NAME: "${DB_NAME}"
+      DB_HOST: "${DB_HOST}"
+      NODE_PORT: "${NODE_PORT}"
+      SERVICE_TAGS: "v1.0.0"
+      SERVICE_NAME: nest-service
+    secrets:
+      - db_password
+    depends_on:
+      - db-service
+    networks:
+      draft_network:
+        aliases:
+          - nest-service
 
 volumes:
   docker: {}

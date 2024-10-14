@@ -63,13 +63,15 @@ git clone https://github.com/hharieta/safereturn.git
 DB_NAME=safereturn
 DB_USER=safeuser
 USER_GROUP=safegroup
-DB_EXTERNAL_PORT=5432
-DB_CONTAINER_VOLUME=./db
+DB_PORT=5432
+DB_VOLUME=./db
 DB_HOST=db_app
 
-WEB_EXTERNAL_PORT=3000
-WEB_CONTAINER_VOLUME=./app
-WEB_HOST=web_app
+ADMINER_PORT=8080
+
+NODE_PORT=3000
+NODE_VOLUME=./app
+NODE_HOST=node_app
 ```
 
 Example `.env` file**
