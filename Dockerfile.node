@@ -14,15 +14,17 @@ WORKDIR /home/nodeuser/app
 
 COPY app/package.json .
 
-RUN npm install -g pnpm @nestjs/cli \
- && pnpm install
+RUN npm install -g pnpm @nestjs/cli
+
+RUN pnpm store prune
 
 COPY app .
 RUN chown -R nodeuser:nodegroup .
 
 USER nodeuser
 
-RUN pnpm run build
+RUN pnpm install \
+    && pnpm run build
 
 EXPOSE ${NEST_PORT}
 
