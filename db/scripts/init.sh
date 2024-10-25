@@ -40,7 +40,7 @@ psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$DB_NAME" <<-EOSQL
     CREATE TABLE users (
         IdUser SERIAL PRIMARY KEY,
         Name VARCHAR(255) NOT NULL,
-        Password VARCHAR(255) NOT NULL,
+        Password BYTEA NOT NULL,
         Role VARCHAR(255) NOT NULL,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     );
@@ -150,7 +150,38 @@ psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$DB_NAME" <<-EOSQL
 EOSQL
 
 psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$DB_NAME" <<-EOSQL
-  ALTER DEFAULT PRIVILEGES IN SCHEMA public
-  GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO "$DB_USER";
+    -- Grant permissions on existing tables
+    GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO "$DB_USER";
+
+    -- Grant permissions on sequences
+    GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO "$DB_USER";
+
+     -- Grant permissions on existing views
+    DO \$\$
+    BEGIN
+        PERFORM format('GRANT SELECT ON %I.%I TO %I;',
+            schemaname, viewname, '$DB_USER')
+        FROM pg_views 
+        WHERE schemaname = 'public';
+    END
+    \$\$;
+
+    -- Grant permissions on existing materialized views
+    DO \$\$
+    BEGIN
+        PERFORM format('GRANT SELECT ON %I.%I TO %I;',
+            schemaname, matviewname, '$DB_USER')
+        FROM pg_matviews
+        WHERE schemaname = 'public';
+    END
+    \$\$;
+
+    -- Set default privileges for future tables
+    ALTER DEFAULT PRIVILEGES IN SCHEMA public
+    GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO "$DB_USER";
+
+    -- Ensure user has only necessary access
+    REVOKE ALL PRIVILEGES ON DATABASE "$POSTGRES_DB" FROM PUBLIC;
+    GRANT CONNECT ON DATABASE "$DB_NAME" TO "$DB_USER";
 EOSQL
 
