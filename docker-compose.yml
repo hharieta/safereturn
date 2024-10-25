@@ -1,6 +1,6 @@
 
 services:
-  db-service:
+  db-safe-service:
     build:
        context: .
        dockerfile: Dockerfile.postgres
@@ -11,7 +11,8 @@ services:
           DB_PORT: ${DB_PORT}
           DB_VOLUME: ${DB_VOLUME}
           USER_GROUP: ${USER_GROUP}
-    container_name: db-service
+    image: db-${PROJECT_NAME}:v1.0.0
+    container_name: db-${PROJECT_NAME}-service
     restart: unless-stopped
     shm_size: 128mb
     ports:
@@ -36,10 +37,10 @@ services:
     networks:
       draft_network:
         aliases:
-          - db-service
-  adminer:
+          - db-safe-service
+  adminer-safe-service:
     image: adminer
-    container_name: adminer
+    container_name: adminer-${PROJECT_NAME}-service
     restart: unless-stopped
     ports:
       - "${ADMINER_PORT}:8080"
@@ -49,7 +50,7 @@ services:
       draft_network:
         aliases:
           - adminer
-  nest-service:
+  nest-safe-service:
     build:
       context: .
       dockerfile: Dockerfile.node
@@ -58,7 +59,8 @@ services:
         DB_USER: ${DB_USER}
         DB_NAME: ${DB_NAME}
         DB_HOST: ${DB_HOST}
-    container_name: nest-service
+    image: nest-${PROJECT_NAME}:v1.0.0
+    container_name: nest-${PROJECT_NAME}-service
     restart: unless-stopped
     ports:
       - "${NODE_PORT}:3000"
@@ -71,15 +73,15 @@ services:
       DB_HOST: "${DB_HOST}"
       NODE_PORT: "${NODE_PORT}"
       SERVICE_TAGS: "v1.0.0"
-      SERVICE_NAME: nest-service
+      SERVICE_NAME: nest-safe-service
     secrets:
       - db_password
     depends_on:
-      - db-service
+      - db-safe-service
     networks:
       draft_network:
         aliases:
-          - nest-service
+          - nest-safe-service
 
 volumes:
   docker: {}
