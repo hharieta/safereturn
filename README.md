@@ -65,13 +65,13 @@ DB_USER=safeuser
 USER_GROUP=safegroup
 DB_PORT=5432
 DB_VOLUME=./db
-DB_HOST=db_app
+DB_HOST=db-safe-service
 
 ADMINER_PORT=8080
 
 NODE_PORT=3000
 NODE_VOLUME=./app
-NODE_HOST=node_app
+NODE_HOST=nest-safe-service
 ```
 
 Example `.env` file**

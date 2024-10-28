@@ -1,0 +1,91 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model founds {
+  idfound    Int       @id @default(autoincrement())
+  idobject   Int
+  idlocation Int
+  idfinder   Int?
+  findername String    @db.VarChar(255)
+  founddate  DateTime  @db.Date
+  created_at DateTime? @default(now()) @db.Timestamp(6)
+  users      users?    @relation(fields: [idfinder], references: [iduser], map: "fk_finder")
+  locations  locations @relation(fields: [idlocation], references: [idlocation], onDelete: SetNull, map: "fk_location")
+  objects    objects   @relation(fields: [idobject], references: [idobject], onDelete: SetNull, map: "fk_object_found")
+}
+
+model images {
+  idimage    Int       @id @default(autoincrement())
+  idobject   Int
+  image      Bytes?
+  created_at DateTime? @default(now()) @db.Timestamp(6)
+  objects    objects   @relation(fields: [idobject], references: [idobject], onDelete: SetNull, map: "fk_object_image")
+}
+
+model locations {
+  idlocation  Int       @id @default(autoincrement())
+  name        String    @db.VarChar(255)
+  address     String    @db.VarChar(255)
+  description String?
+  created_at  DateTime? @default(now()) @db.Timestamp(6)
+  founds      founds[]
+}
+
+model objects {
+  idobject       Int              @id @default(autoincrement())
+  iduser         Int
+  name           String           @db.VarChar(255)
+  category       String           @db.VarChar(255)
+  description    String?
+  created_at     DateTime?        @default(now()) @db.Timestamp(6)
+  founds         founds[]
+  images         images[]
+  users          users            @relation(fields: [iduser], references: [iduser], onDelete: SetNull, map: "fk_user")
+  returneds      returneds[]
+  status_history status_history[]
+
+  @@index([category], map: "idx_category")
+}
+
+model returneds {
+  idreturned   Int       @id @default(autoincrement())
+  idobject     Int
+  idreturner   Int?
+  returnername String    @db.VarChar(255)
+  returndate   DateTime  @db.Date
+  created_at   DateTime? @default(now()) @db.Timestamp(6)
+  objects      objects   @relation(fields: [idobject], references: [idobject], onDelete: SetNull, map: "fk_object_returned")
+  users        users?    @relation(fields: [idreturner], references: [iduser], map: "fk_returner")
+}
+
+model status {
+  idstatus       Int              @id @default(autoincrement())
+  statusname     String           @db.VarChar(50)
+  status_history status_history[]
+}
+
+model status_history {
+  idhistory        Int      @id @default(autoincrement())
+  idobject         Int
+  idstatus         Int
+  statuschangedate DateTime @db.Date
+  objects          objects  @relation(fields: [idobject], references: [idobject], onDelete: Cascade, map: "fk_object_status")
+  status           status   @relation(fields: [idstatus], references: [idstatus], onDelete: Cascade, map: "fk_status")
+}
+
+model users {
+  iduser     Int         @id @default(autoincrement())
+  name       String      @db.VarChar(255)
+  password   String
+  role       String      @db.VarChar(255)
+  created_at DateTime?   @default(now()) @db.Timestamp(6)
+  founds     founds[]
+  objects    objects[]
+  returneds  returneds[]
+}

@@ -7,12 +7,16 @@ ARG NEST_PORT=3000
 ENV NODE_ENV=${NODE_ENV}
 ENV NEST_PORT=${NEST_PORT}
 
+RUN apt update && apt install -y --no-install-recommends \
+    openssl \
+    && apt clean
+
 RUN groupadd -r nodegroup && useradd -r -g nodegroup -d /home/nodeuser -m -s /bin/bash nodeuser
 
 
 WORKDIR /home/nodeuser/app
 
-COPY app/package.json .
+COPY app/package.json app/pnpm-lock.yaml ./
 
 RUN npm install -g pnpm @nestjs/cli
 

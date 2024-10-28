@@ -2,7 +2,7 @@
 
 ```mermaid
 ---
-title: ERD - Safereturn
+title: ERD - Safereturn (Optimizado)
 ---
 erDiagram
     Object {
@@ -29,29 +29,34 @@ erDiagram
         int IdFound PK
         int IdObject FK
         int IdLocation FK
-        varchar FinderName
+        int IdFinder FK
         date FoundDate
     }
 
     Returned {
         int IdReturned PK
         int IdObject FK
-        varchar ReturnerName
+        int IdReturner FK 
         date ReturnDate
     }
 
     Status_History {
         int IdHistory PK
         int IdObject FK
-        string Status
+        int IdStatus FK 
         date StatusChangeDate
     }
 
     User {
         int IdUser PK
         string Name
-        string Password
+        text Password 
         string Role
+    }
+
+    Status {
+        int IdStatus PK
+        string StatusName
     }
 
     %% Relationships
@@ -60,5 +65,9 @@ erDiagram
     Object ||--o{ Returned: "is returned"
     Found ||--o| Location: "at"
     Status_History ||--o| Object: "tracks"
+    Status_History ||--|| Status: "refers to"
     User ||--o{ Object: "manages"
+    Found ||--|o User: "optional finder"
+    Returned ||--|o User: "optional returner"
+
 ```
