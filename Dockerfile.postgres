@@ -6,6 +6,12 @@ LABEL maintainer="Gatovsky"
 ARG DB_USER
 ARG USER_GROUP
 
+ENV DEBIAN_FRONTEND=noninteractive
+
+RUN apt update && apt install -y tzdata && apt clean && \
+    ln -fs /usr/share/zoneinfo/America/Cancun /etc/localtime && \
+    dpkg-reconfigure --frontend noninteractive tzdata
+
 # RUN apt-get update && \
 #     apt-get install -y locales && \
 #     locale-gen es_ES.UTF-8 && \

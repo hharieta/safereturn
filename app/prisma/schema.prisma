@@ -82,10 +82,15 @@ model status_history {
 model users {
   iduser     Int         @id @default(autoincrement())
   name       String      @db.VarChar(255)
+  email      String      @unique @db.VarChar(255)
+  phone      String      @db.VarChar(20)
   password   String
   role       String      @db.VarChar(255)
   created_at DateTime?   @default(now()) @db.Timestamp(6)
   founds     founds[]
   objects    objects[]
   returneds  returneds[]
+
+  @@index([email], map: "idx_email")
+  @@index([role], map: "idx_role")
 }

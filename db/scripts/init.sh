@@ -41,10 +41,15 @@ psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$DB_NAME" <<-EOSQL
     CREATE TABLE users (
         IdUser SERIAL PRIMARY KEY,
         Name VARCHAR(255) NOT NULL,
+        Email VARCHAR(255) UNIQUE NOT NULL,
+        Phone VARCHAR(20) NOT NULL,
         Password TEXT NOT NULL,
         Role VARCHAR(255) NOT NULL,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     );
+
+    CREATE INDEX idx_email ON users(Email);
+    CREATE INDEX idx_role ON users(Role);
 
     CREATE TABLE objects (
         IdObject SERIAL PRIMARY KEY,
@@ -150,10 +155,10 @@ psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$DB_NAME" <<-EOSQL
     -- data for testing
 
     -- Insert users
-    INSERT INTO users (Name, Password, Role)
+    INSERT INTO users (Name, Email, Phone, Password, Role)
     VALUES 
-    ('admin', crypt('securepassword', gen_salt('bf')), 'admin'),  -- Use bcrypt
-    ('gatovsky', crypt('gato1234!', gen_salt('bf')), 'user');
+    ('admin', 'admin@email.com', '+52 0000000000', crypt('securepassword', gen_salt('bf')), 'admin'),  -- Use bcrypt
+    ('gatovsky', 'gatovsky@email.com', '+52 0000000000', crypt('gato1234!', gen_salt('bf')), 'user');
 
     -- Insert locations
     INSERT INTO locations (Name, Address, Description)
