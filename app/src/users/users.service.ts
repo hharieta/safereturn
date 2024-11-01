@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { users, Prisma } from '@prisma/client';
+import { users as User, Prisma } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 
 
@@ -10,7 +10,7 @@ export class UsersService {
 
     async user(
         userWhereUniqueInput: Prisma.usersWhereUniqueInput,
-    ): Promise<users | null> {
+    ): Promise<User | null> {
         return this.prisma.users.findUnique({
             where: userWhereUniqueInput,
         });
@@ -22,7 +22,7 @@ export class UsersService {
         cursor?: Prisma.usersWhereUniqueInput;
         where?: Prisma.usersWhereInput;
         orderBy?: Prisma.usersOrderByWithRelationInput;
-    }): Promise<users[]> {
+    }): Promise<User[]> {
         const { skip, take, cursor, where, orderBy } = params;
 
         return this.prisma.users.findMany({
@@ -34,7 +34,7 @@ export class UsersService {
         });
     }
 
-    async findByEmail(email: string): Promise<users | null> {
+    async findByEmail(email: string): Promise<User | null> {
         return this.prisma.users.findFirst({
             where: {
                 email,
@@ -42,7 +42,15 @@ export class UsersService {
         });
     }
 
-    async createUser(data: Prisma.usersCreateInput): Promise<users> {
+    async findUserById(iduser: number): Promise<User | null> {
+        return this.prisma.users.findUnique({
+            where: {
+                iduser: iduser,
+            },
+        });
+    }
+
+    async createUser(data: Prisma.usersCreateInput): Promise<User> {
         const hashedPassword = await bcrypt.hash(data.password, 10);
         return this.prisma.users.create({
             data: {

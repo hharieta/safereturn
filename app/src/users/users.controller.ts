@@ -3,6 +3,7 @@ import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { UsersService } from './users.service';
 import { users as User } from '@prisma/client';
+import { UserPayload } from './types/user-payload.type';
 
 
 @ApiTags('users')
@@ -13,8 +14,9 @@ export class UsersController {
 
     @UseGuards(JwtAuthGuard)
     @Get('profile')
-    async getProfile(@Request() req: Request & {user: User} ): Promise<User> {
-        return req.user;
+    async getProfile(@Request() req: {user: UserPayload}): Promise<User> {
+        const iduser = req.user.iduser;
+        return this.usersService.findUserById(iduser);
     }
 
     // @Post('register')
