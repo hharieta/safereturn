@@ -15,8 +15,8 @@ export class UsersController {
     @UseGuards(JwtAuthGuard)
     @Get('profile')
     async getProfile(@Request() req: {user: UserPayload}): Promise<User> {
-        const iduser = req.user.iduser;
-        return this.usersService.findUserById(iduser);
+        const email = req.user.email;
+        return this.usersService.findByEmail(email);
     }
 
     // @Post('register')

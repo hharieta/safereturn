@@ -35,9 +35,9 @@ export class UsersService {
     }
 
     async findByEmail(email: string): Promise<User | null> {
-        return this.prisma.users.findFirst({
+        return this.prisma.users.findUnique({
             where: {
-                email,
+                email: email,
             },
         });
     }
