@@ -1,0 +1,26 @@
+FROM redis:8.0-M02-bookworm
+
+LABEL maintainer="Gatovsky | contacto@hharieta.lat"
+
+ARG REDIS_PORT=6379
+ENV REDIS_PORT=${REDIS_PORT}
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+RUN apt update && apt install -y tzdata && apt clean && \
+    ln -fs /usr/share/zoneinfo/America/Cancun /etc/localtime && \
+    dpkg-reconfigure --frontend noninteractive tzdata
+
+RUN apt update && apt install -y --no-install-recommends \
+    openssl \
+    && apt clean
+
+USER redis
+
+WORKDIR /data
+
+RUN chown redis:redis /data
+
+EXPOSE ${REDIS_PORT}
+
+CMD [ "redis-server" ]
