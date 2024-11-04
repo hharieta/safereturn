@@ -23,7 +23,7 @@ export class AuthService {
     }
 
     async login(user: {iduser: number, email: string}): Promise<{ sub: number; access_token: string; refresh_token: string }> {
-        const accessToken = this.jwtService.sign({sub: user.iduser, email: user.email, type: 'access'}, {expiresIn: '60s'});
+        const accessToken = this.jwtService.sign({sub: user.iduser, email: user.email, type: 'access'}, {expiresIn: '1h'});
         const refreshToken = this.jwtService.sign({sub: user.iduser, email: user.email, type: 'refresh'}, {expiresIn: '8h'});
 
         await this.saveRefreshToken(refreshToken, user);
@@ -58,7 +58,7 @@ export class AuthService {
     async generateNewToken(payload: {sub: number, email: string}): Promise<string> {
         return this.jwtService.sign(
             { sub: payload.sub, email: payload.email, type: 'access' },
-            { expiresIn: '60s' }
+            { expiresIn: '1h' }
           );
     }
 
