@@ -8,8 +8,11 @@ The project structure is as follows:
 
 ```bash
 .
+├── Dockerfile.node
 ├── Dockerfile.postgres
+├── Dockerfile.redis
 ├── ER-Diagram.md
+├── init.sql
 ├── README.md
 ├── .env
 ├── app
@@ -26,6 +29,9 @@ The project structure is as follows:
 │   ├── conf
 │   ├── data
 │   └── scripts
+├── redis
+│   ├── conf
+│   └── data
 ├── docker-compose.yml
 └── secrets
     ├── db_password
@@ -36,6 +42,8 @@ The project structure is as follows:
 
 `db` - Contains the database configuration and scripts to create the database and user. This folder is mounted as a volume in the database container.
 
+`redis` - Contains the configuration for the Redis database. redis/data is mounted as a volume in the Redis container.
+
 `secrets` - Contains the passwords for the database and the postgres user.
 
 `.env` - Contains the environment variables for the application and database.
@@ -43,6 +51,10 @@ The project structure is as follows:
 `docker-compose.yml` - Contains the configuration to run the application and database.
 
 `Dockerfile.postgres` - Contains the configuration to build the database image.
+
+`Dockerfile.node` - Contains the configuration to build the NodeJS image.
+
+`Dockerfile.redis` - Contains the configuration to build the Redis image.
 
 ### Prerequisites
 
@@ -60,12 +72,18 @@ git clone https://github.com/hharieta/safereturn.git
 2 - create a `.env` file in the root of the project with the following content:
 
 ```bash
+PROJECT_NAME=safereturn
+
 DB_NAME=safereturn
 DB_USER=safeuser
 USER_GROUP=safegroup
 DB_PORT=5432
 DB_VOLUME=./db
 DB_HOST=db-safe-service
+
+REDIS_PORT=6379
+REDIS_VOLUME=./redis
+REDIS_HOST=redis-safe-service
 
 ADMINER_PORT=8080
 
@@ -95,8 +113,14 @@ Note: This script will create a user and grant privileges to the database.
 5 - Create folders for the database volumes:
 
 ```bash
+# Create folders for the postgresql volumes
 mkdir db/data
 mkdir db/conf
+
+# Create folders for the redis volumes
+mkdir redis
+mkdir redis/data
+mkdir redis/conf
 ```
 
 6 - Run the following command to start the application:

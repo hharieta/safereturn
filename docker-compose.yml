@@ -50,6 +50,27 @@ services:
       draft_network:
         aliases:
           - adminer
+  redis-safe-service:
+    build:
+      context: .
+      dockerfile: Dockerfile.redis
+      args:
+        REDIS_PORT: ${REDIS_PORT}
+    container_name: redis-${PROJECT_NAME}-service
+    restart: unless-stopped
+    ports:
+      - "${REDIS_PORT}:6379"
+    volumes:
+      - "${REDIS_VOLUME}/data:/data:rw"
+      - "${REDIS_VOLUME}/conf:/usr/local/etc/redis:ro"
+    environment:
+      REDIS_PORT: "${REDIS_PORT}"
+      SERVICE_TAGS: "v1.0.0"
+      SERVICE_NAME: redis-service
+    networks:
+      draft_network:
+        aliases:
+          - redis
   nest-safe-service:
     build:
       context: .
@@ -72,6 +93,8 @@ services:
       DB_NAME: "${DB_NAME}"
       DB_HOST: "${DB_HOST}"
       NODE_PORT: "${NODE_PORT}"
+      REDIS_PORT: "${REDIS_PORT}"
+      REDIS_HOST: "${REDIS_HOST}"
       SERVICE_TAGS: "v1.0.0"
       SERVICE_NAME: nest-safe-service
     secrets:
