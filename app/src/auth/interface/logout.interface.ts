@@ -1,4 +1,4 @@
-import { Request } from 'express';
+import { Request } from '@nestjs/common';
 
 export interface LogoutInterface extends Request {
     user: {
