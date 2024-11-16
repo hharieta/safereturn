@@ -42,6 +42,7 @@ export class ObjectsService {
                     images: true,
                     founds: true,
                     returneds: true,
+                    categories: true,
                 }
             )
         });
