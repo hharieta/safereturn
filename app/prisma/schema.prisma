@@ -7,6 +7,12 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model categories {
+  idcategory   Int       @id @default(autoincrement())
+  categoryname String    @db.VarChar(255)
+  objects      objects[]
+}
+
 model founds {
   idfound    Int       @id @default(autoincrement())
   idobject   Int
@@ -41,16 +47,17 @@ model objects {
   idobject       Int              @id @default(autoincrement())
   iduser         Int
   name           String           @db.VarChar(255)
-  category       String           @db.VarChar(255)
+  idcategory     Int
   description    String?
   created_at     DateTime?        @default(now()) @db.Timestamp(6)
   founds         founds[]
   images         images[]
+  categories     categories       @relation(fields: [idcategory], references: [idcategory], onDelete: SetNull, map: "fk_category")
   users          users            @relation(fields: [iduser], references: [iduser], onDelete: SetNull, map: "fk_user")
   returneds      returneds[]
   status_history status_history[]
 
-  @@index([category], map: "idx_category")
+  @@index([idcategory], map: "idx_category")
 }
 
 model returneds {

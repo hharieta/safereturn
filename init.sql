@@ -12,21 +12,31 @@ CREATE TABLE users (
 CREATE INDEX idx_email ON users(Email);
 CREATE INDEX idx_role ON users(Role);
 
+CREATE TABLE categories (
+    IdCategory SERIAL PRIMARY KEY,
+    CategoryName VARCHAR(255) NOT NULL
+);
+
 CREATE TABLE objects (
     IdObject SERIAL PRIMARY KEY,
     IdUser INT NOT NULL,
     Name VARCHAR(255) NOT NULL,
-    Category VARCHAR(255) NOT NULL,
+    IdCategory INT NOT NULL,
     Description TEXT,
     CONSTRAINT fk_user
         FOREIGN KEY(IdUser)
             REFERENCES users(IdUser)
             ON DELETE SET NULL
             ON UPDATE CASCADE,
+    CONSTRAINT fk_category
+        FOREIGN KEY(IdCategory)
+            REFERENCES categories(IdCategory)
+            ON DELETE SET NULL
+            ON UPDATE CASCADE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE INDEX idx_category ON objects(Category);
+CREATE INDEX idx_category ON objects(IdCategory);
 
 CREATE TABLE  locations (
     IdLocation SERIAL PRIMARY KEY,
@@ -119,21 +129,35 @@ CREATE TABLE returneds (
 INSERT INTO users (Name, Email, Phone, Password, Role)
 VALUES 
 ('admin', 'admin@email.com', '+52 0000000000', crypt('securepassword', gen_salt('bf')), 'admin'),  -- Use bcrypt
-('gatovsky', 'contacto@hharieta.lat', '+52 0000000000' crypt('gato1234!', gen_salt('bf')), 'user');
+('gatovsky', 'contacto@hharieta.lat', '+52 0000000000', crypt('gato1234!', gen_salt('bf')), 'admin');
+
+-- Insert categories
+INSERT INTO categories (CategoryName)
+VALUES 
+    ('Accesorios'), 
+    ('Bolsos'), 
+    ('Ropa'), 
+    ('Electrónicos'), 
+    ('Documentos'), 
+    ('Termos'), 
+    ('Loncheras'),
+    ('Utiles'), 
+    ('Libros'),
+    ('Otros');
 
 -- Insert locations
 INSERT INTO locations (Name, Address, Description)
 VALUES
-('Main Hall', '123 University Ave', 'Lost and Found counter in the main hall'),
-('Library', '456 Library St', 'Objects found in the library'),
-('Cafeteria', '789 Food St', 'Found items from the cafeteria');
+('Sala de Usos Multiples', 'Cecilio Chavez', 'Se encontró debajo  de una banca por la entrada'),
+('Biblioteca', 'Av. Universidad', 'Se encontró en el pasillo de la biblioteca'),
+('Salón 6', 'Edificio Q', 'Se encontró debajo de una silla junto a la puerta');
 
 -- Insert objects
-INSERT INTO objects (IdUser, Name, Category, Description)
+INSERT INTO objects (IdUser, Name, IdCategory, Description)
 VALUES
-(1, 'Black Wallet', 'Accessories', 'Leather wallet with several cards inside'),
-(2, 'Bottle Water', 'Accessories', 'Blue bottle of water with a sticker'),
-(1, 'Backpack', 'Bags', 'Blue backpack with books inside');
+(1, 'Cartera Negra', 1, 'Cartera de cuero con varias tarjetas adentro'),
+(2, 'Botella de Agua', 6, 'Botella de agua azul con un sticker'),
+(1, 'Mochila', 2, 'Mochila azul con libros adentro');
 
 -- Insert status
 INSERT INTO status (StatusName)
