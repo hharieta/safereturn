@@ -24,8 +24,9 @@ export class ObjectsController {
         return await this.objectsService.objects({
             where: {
                 OR: [
-                    { name: { contains: searchString } },
-                    { category: { contains: searchString } },
+                    { name: { contains: searchString, mode: 'insensitive' } },
+                    { description: { contains: searchString, mode: 'insensitive' } },
+                    { categories: { categoryname: { contains: searchString, mode: 'insensitive' } } },
                 ],
             },
         });
